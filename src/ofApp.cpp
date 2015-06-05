@@ -145,6 +145,7 @@ void ofApp::setup(){
                               "shaders_gl3/wave_DISPLAY.frag");
       waveShader_displayTiled.load("shaders_gl3/wave_DISPLAY_tiled.vert",
                                     "shaders_gl3/wave_DISPLAY_tiled.frag");
+      waveShaderMod.load("shaders_gl3/wave_mod.vert", "shaders_gl3/wave_mod.frag");
     }
     else{
       shader.load("shaders/noise.vert", "shaders/noise.frag");
@@ -179,6 +180,8 @@ void ofApp::update(){
                               "shaders_gl3/wave_DISPLAY.frag");
           waveShader_displayTiled.load("shaders_gl3/wave_DISPLAY_tiled.vert",
                               "shaders_gl3/wave_DISPLAY_tiled.frag");
+          waveShaderMod.load("shaders_gl3/wave_mod.vert",
+                             "shaders_gl3/wave_mod.frag");
       }
 
       // needs tiling!!!!
@@ -228,7 +231,10 @@ void ofApp::update(){
       height_Fbo0.end();
 
       height_old_Fbo0.begin();
+      waveShaderMod.begin();
+        waveShaderMod.setUniform1f("frame_num", float(frame_num));
         height_backup_Fbo0.draw(0,0);
+      waveShaderMod.end();
       height_old_Fbo0.end();
 
       height0 = height_Fbo0.getTextureReference();
@@ -254,7 +260,10 @@ void ofApp::update(){
       height_Fbo1.end();
 
       height_old_Fbo1.begin();
+      waveShaderMod.begin();
+        waveShaderMod.setUniform1f("frame_num", float(frame_num));
         height_backup_Fbo1.draw(0,0);
+      waveShaderMod.end();
       height_old_Fbo1.end();
 
       height1 = height_Fbo1.getTextureReference();
@@ -280,7 +289,10 @@ void ofApp::update(){
       height_Fbo2.end();
 
       height_old_Fbo2.begin();
+      waveShaderMod.begin();
+        waveShaderMod.setUniform1f("frame_num", float(frame_num));
         height_backup_Fbo2.draw(0,0);
+      waveShaderMod.end();
       height_old_Fbo2.end();
 
       height2 = height_Fbo2.getTextureReference();
@@ -306,7 +318,10 @@ void ofApp::update(){
       height_Fbo3.end();
 
       height_old_Fbo3.begin();
+      waveShaderMod.begin();
+        waveShaderMod.setUniform1f("frame_num", float(frame_num));
         height_backup_Fbo3.draw(0,0);
+      waveShaderMod.end();
       height_old_Fbo3.end();
 
       height3 = height_Fbo3.getTextureReference();
@@ -363,6 +378,27 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key){
+    if (key == '.'){
+      string folder = "02/";
+      folder = "captures/" + folder;
+      string timestamp = ofGetTimestampString("%Y%m%d_%H%M%S.png");
+      string filename = folder + "t0_" + timestamp;
+
+      height_Fbo0.readToPixels(screenshot);
+      ofSaveImage(screenshot, filename);
+
+      filename = folder + "t1_" + timestamp;
+      height_Fbo1.readToPixels(screenshot);
+      ofSaveImage(screenshot, filename);
+
+      filename = folder + "t2_" + timestamp;
+      height_Fbo2.readToPixels(screenshot);
+      ofSaveImage(screenshot, filename);
+
+      filename = folder + "t3_" + timestamp;
+      height_Fbo3.readToPixels(screenshot);
+      ofSaveImage(screenshot, filename);
+    }
     if (key == ' '){
       pick_step++;
     }

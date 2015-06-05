@@ -26,7 +26,7 @@ public:
 
     ofTrueTypeFont font;
     ofShader shader;
-    ofShader waveShader, waveShaderTiled;
+    ofShader waveShader, waveShaderTiled, waveShaderMod;
     ofShader waveShader_display, waveShader_displayTiled;
 
     ofFbo height_FBO,
@@ -57,6 +57,8 @@ public:
 
     ofImage img_test;
     ofImage img_00,img_01,img_02,img_03;
+
+    ofPixels screenshot;
 
     int frame_num, time_step, pick_step;
     int w, h;
