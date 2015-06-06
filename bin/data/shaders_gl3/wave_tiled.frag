@@ -17,21 +17,21 @@ uniform int pos;
 uniform vec2 mouse;
 
 const float img_size = 4096.;
-const float xLength = 16.2;
-const float yLength = 16.2;
+const float xLength = 22.2;
+const float yLength = 22.2;
 const float dt = 0.001;
 const float C = 1.;
 const float spread = 1.;
 const float simulate = 1.;
+const vec2 center_pixel = vec2(0., 0.);
 
-///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////a
 // F U N C T I O N S
 ///////////////////////////////////////////////////////////////////////
 
-// float mod(const float a, const float b) {
-//   // emulate integer mod operations in a float-only environment
-//   return floor(fract(a/b) * b);
-// }
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
 
 ///////////////////////////////////////////////////////////////////////
 // WAVE FUNCTIONS
@@ -49,9 +49,9 @@ vec3 DiffusionWave(vec3 _col){
 
 //    vec2 coord_d = (floor(gl_FragCoord.st*1000.)+0.5)/1000.;
     vec2 coord_d = vertexUV;
-    // vec2 coord_d = vec2((vertexUV.x), (vertexUV.y)) + vec2(0.5);
+    // vec2 coord_d = gl_FragCoord.st + vec2(0.5);
     // vec2 coord_d = vec2(round(vertexUV.s), round(vertexUV.t));
-//    vec2 coord_d = gl_FragCoord.st/img_size;
+//    vec2 coord_d = gl_FragCoord.st;
 
     vec2 n0 = vec2(coord_d.s, coord_d.t);
     vec2 n1 = vec2(coord_d.s + it, coord_d.t);
@@ -85,7 +85,11 @@ vec3 DiffusionWaveT0(vec3 _col){
   vec4 sample[9] = vec4[](vec4(0.), vec4(0.), vec4(0.), vec4(0.), 
                     vec4(0.), vec4(0.), vec4(0.), vec4(0.), vec4(0.));
 
-  vec2 coord_d = vec2((vertexUV.x), (vertexUV.y)) + vec2(0.0);
+  vec2 coord_d = (gl_FragCoord.st) + center_pixel;
+  // if (coord_d.x == coord_d.y){
+    // float random = rand(coord_d) * .1;
+    // coord_d.x += random;
+  // }
 
   vec2 n0 = vec2(coord_d.s, coord_d.t);
   vec2 n1 = vec2(coord_d.s + it, coord_d.t);
@@ -97,7 +101,8 @@ vec3 DiffusionWaveT0(vec3 _col){
   vec2 n7 = vec2(coord_d.s - it, coord_d.t + it);
   vec2 n8 = vec2(coord_d.s - it, coord_d.t - it);
 
-  sample[0] = -8. * texture(tex0, n0);
+  // sample[0] = -8. * texture(tex0, n0);
+  sample[0] = -8. * ((texture(tex0, n0)- vec4(0.5)) * vec4(2.));
   
   if (n1.x > img_size) sample[1] = texture(neighbor_x_tex, vec2(n1.x-img_size,n1.y));
   else sample[1] = texture(tex0, n1);
@@ -121,6 +126,10 @@ vec3 DiffusionWaveT0(vec3 _col){
   
   sample[8] = texture(tex0, n8);
 
+  // shift into -1 to 1 range, skipping first sample
+  for (int i = 1; i < 9; i++){
+    sample[i].rgb = (sample[i].rgb - vec3(0.5)) * vec3(2.);
+  }
 
   vec4 laplacian =sample[0]+sample[1]+sample[2]+sample[3]+
                   sample[4]+sample[5]+sample[6]+sample[7]+sample[8];
@@ -137,7 +146,11 @@ vec3 DiffusionWaveT1(vec3 _col){
   vec4 sample[9] = vec4[](vec4(0.), vec4(0.), vec4(0.), vec4(0.), 
                     vec4(0.), vec4(0.), vec4(0.), vec4(0.), vec4(0.));
 
-  vec2 coord_d = vec2((vertexUV.x), (vertexUV.y)) + vec2(0.0);
+  vec2 coord_d = (gl_FragCoord.st) + center_pixel;
+  // if (coord_d.x == coord_d.y){
+    // float random = rand(coord_d) * .1;
+    // coord_d.x += random;
+  // }
 
   vec2 n0 = vec2(coord_d.s, coord_d.t);
   vec2 n1 = vec2(coord_d.s + it, coord_d.t);
@@ -149,7 +162,8 @@ vec3 DiffusionWaveT1(vec3 _col){
   vec2 n7 = vec2(coord_d.s - it, coord_d.t + it);
   vec2 n8 = vec2(coord_d.s - it, coord_d.t - it);
 
-  sample[0] = -8. * texture(tex0, n0);
+  // sample[0] = -8. * texture(tex0, n0);
+  sample[0] = -8. * ((texture(tex0, n0)- vec4(0.5)) * vec4(2.));
   sample[1] = texture(tex0, n1);
 
   if (n2.x < 0.) sample[2] = texture(neighbor_x_tex, vec2(n2.x+img_size,n2.y));
@@ -172,6 +186,10 @@ vec3 DiffusionWaveT1(vec3 _col){
   if (n8.x < 0.) sample[8] = texture(neighbor_x_tex, vec2(n8.x+img_size,n8.y));
   else sample[8] = texture(tex0, n8);
 
+  // shift into -1 to 1 range, skipping first sample
+  for (int i = 1; i < 9; i++){
+    sample[i].rgb = (sample[i].rgb - vec3(0.5)) * vec3(2.);
+  }
 
   vec4 laplacian =sample[0]+sample[1]+sample[2]+sample[3]+
                   sample[4]+sample[5]+sample[6]+sample[7]+sample[8];
@@ -189,7 +207,11 @@ vec3 DiffusionWaveT2(vec3 _col){
   vec4 sample[9] = vec4[](vec4(0.), vec4(0.), vec4(0.), vec4(0.), 
                     vec4(0.), vec4(0.), vec4(0.), vec4(0.), vec4(0.));
 
-  vec2 coord_d = vec2((vertexUV.x), (vertexUV.y)) + vec2(0.0);
+  vec2 coord_d = (gl_FragCoord.st) + center_pixel;
+  // if (coord_d.x == coord_d.y){
+    // float random = rand(coord_d) * .1;
+    // coord_d.x += random;
+  // }
 
   vec2 n0 = vec2(coord_d.s, coord_d.t);
   vec2 n1 = vec2(coord_d.s + it, coord_d.t);
@@ -201,7 +223,9 @@ vec3 DiffusionWaveT2(vec3 _col){
   vec2 n7 = vec2(coord_d.s - it, coord_d.t + it);
   vec2 n8 = vec2(coord_d.s - it, coord_d.t - it);
 
-  sample[0] = -8. * texture(tex0, n0);
+  // sample[0] = -8. * texture(tex0, n0);
+  sample[0] = -8. * ((texture(tex0, n0)- vec4(0.5)) * vec4(2.));
+  
   if (n1.x > img_size) sample[1] = texture(neighbor_x_tex, vec2(n1.x-img_size, n1.y));
   else sample[1] = texture(tex0, n1);
 
@@ -224,6 +248,10 @@ vec3 DiffusionWaveT2(vec3 _col){
   if (n8.y < 0.) sample[8] = texture(neighbor_y_tex, vec2(n8.x, n8.y+img_size));
   else sample[8] = texture(tex0, n8);
 
+  // shift into -1 to 1 range, skipping first sample
+  for (int i = 1; i < 9; i++){
+    sample[i].rgb = (sample[i].rgb - vec3(0.5)) * vec3(2.);
+  }
 
   vec4 laplacian =sample[0]+sample[1]+sample[2]+sample[3]+
                   sample[4]+sample[5]+sample[6]+sample[7]+sample[8];
@@ -241,7 +269,11 @@ vec3 DiffusionWaveT3(vec3 _col){
   vec4 sample[9] = vec4[](vec4(0.), vec4(0.), vec4(0.), vec4(0.), 
                     vec4(0.), vec4(0.), vec4(0.), vec4(0.), vec4(0.));
 
-  vec2 coord_d = vec2((vertexUV.x), (vertexUV.y)) + vec2(0.0);
+  vec2 coord_d = (gl_FragCoord.st) + center_pixel;
+  // if (coord_d.x == coord_d.y){
+    // float random = rand(coord_d) * .1;
+    // coord_d.x += random;
+  // }
 
   vec2 n0 = vec2(coord_d.s, coord_d.t);
   vec2 n1 = vec2(coord_d.s + it, coord_d.t);
@@ -253,7 +285,9 @@ vec3 DiffusionWaveT3(vec3 _col){
   vec2 n7 = vec2(coord_d.s - it, coord_d.t + it);
   vec2 n8 = vec2(coord_d.s - it, coord_d.t - it);
 
-  sample[0] = -8. * texture(tex0, n0);
+  // sample[0] = -8. * texture(tex0, n0);
+  sample[0] = -8. * ((texture(tex0, n0)- vec4(0.5)) * vec4(2.));
+  
   sample[1] = texture(tex0, n1);
 
   if (n2.x < 0.) sample[2] = texture(neighbor_x_tex, vec2(n2.x+img_size,n2.y));
@@ -276,12 +310,17 @@ vec3 DiffusionWaveT3(vec3 _col){
   else if (n8.y < 0.) sample[8] = texture(neighbor_y_tex, vec2(n8.x,n8.y+img_size));
   else sample[8] = texture(tex0, n8);
 
+  // shift into -1 to 1 range, skipping first sample
+  for (int i = 1; i < 9; i++){
+    sample[i].rgb = (sample[i].rgb - vec3(0.5)) * vec3(2.);
+  }
+
 
   vec4 laplacian =sample[0]+sample[1]+sample[2]+sample[3]+
                   sample[4]+sample[5]+sample[6]+sample[7]+sample[8];
 
   return laplacian.rgb;
-}
+}  
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
@@ -289,7 +328,8 @@ vec3 DiffusionWaveT3(vec3 _col){
 void main() {
   float dx = xLength/img_size;
   float dy = xLength/img_size;
-  if (pos > 1) dy = yLength/img_size;
+  // if (pos > 1) dy = yLength/img_size;
+  // dy = yLength/img_size;
   float box_size = 1000.;
 
   vec4 height = vec4(1.);
@@ -297,7 +337,12 @@ void main() {
   vec4 img_01 = vec4(1.);
 
 
-  vec2 coord = vec2((vertexUV.s), (vertexUV.t)) + vec2(0.0);
+  // vec2 coord = vec2((gl_FragCoord.s), (gl_FragCoord.t)) + vec2(0.);
+  vec2 coord = vec2((gl_FragCoord.s), (gl_FragCoord.t)) + vec2(0.);
+  // if (coord.x == coord.y){
+    // float random = rand(coord) * .1;
+    // coord.x += random;
+  // }
 
   height = texture(tex0, coord);
   height_old = texture(height_old_tex, coord);
@@ -307,10 +352,12 @@ void main() {
   float b = (Cd_img.r+Cd_img.g+Cd_img.b)/3.;
   // if (frame_num % 1 == 0){
     // if (frame_num % 1 == 0 && (pos == 1 || pos == 2 || pos == 3)){
-    if (pos >= 0){
+    // if (pos >= 0){
+      // if (frame_num % 100 == 0){
+      if (frame_num < 10 ){
       // height.rgb = Cd_img;
       // if (b > .1) height.rgb = Cd_img;
-      if (b > .4) {
+      if (b > .05) {
         height_old.rgb = Cd_img;
         height.rgb = Cd_img;
       }
@@ -318,6 +365,12 @@ void main() {
     }
   // }
 
+  // if (frame_num < 10){
+  //   height.rgb = vec3(1.);
+  //   height_old.rgb = vec3(1.);
+  // }
+
+  // draw a box
  //  float bL = (img_size*0.5)-box_size;
  //  float bR = (img_size*0.5)+box_size;
  //  if (frame_num % 100 == 0){
@@ -333,7 +386,7 @@ void main() {
   // W A V E
   ///////////////////////////////////////////////////////////////////////
 
-  float border_threshold = 5.;
+  float border_threshold = 100.;
   // original
   // if (gl_FragCoord.x < border_threshold || gl_FragCoord.x > img_size-border_threshold ||
   //     gl_FragCoord.y < border_threshold || gl_FragCoord.y > img_size-border_threshold) {
@@ -342,20 +395,33 @@ void main() {
   // }
   if (pos == 0) {
     if (gl_FragCoord.x < border_threshold || gl_FragCoord.y < border_threshold) {
-      height.rgb = vec3(-1.);
-      height_old.rgb = vec3(-1.);
+      height.rgb = vec3(.5);
+      height_old.rgb = vec3(.5);
     }
   }
   else if (pos == 1) {
     if (gl_FragCoord.x > img_size-border_threshold || gl_FragCoord.y < border_threshold) {
-      height.rgb = vec3(-1.);
-      height_old.rgb = vec3(-1.);
+      height.rgb = vec3(.5);
+      height_old.rgb = vec3(.5);
     }
   }
-//  if (simulate>=0.0001){
-    height.rgb = (height.rgb - vec3(0.5)) * vec3(2.);
-    height_old.rgb = (height_old.rgb - vec3(0.5)) * vec3(2.);
+  else if (pos == 2) {
+    if (gl_FragCoord.x < border_threshold || gl_FragCoord.y > (img_size/2.)-border_threshold) {
+      height.rgb = vec3(.5);
+      height_old.rgb = vec3(.5);
+    }
+  }  
+  else if (pos == 3) {
+    if (gl_FragCoord.x > img_size-border_threshold || gl_FragCoord.y > (img_size/2.)-border_threshold) {
+      height.rgb = vec3(.5);
+      height_old.rgb = vec3(.5);
+    }
+  }
 
+
+  // shift to -1 - 1
+  height.rgb = (height.rgb - vec3(0.5)) * vec3(2.);
+  height_old.rgb = (height_old.rgb - vec3(0.5)) * vec3(2.);
 
   // vec3 laplacian = DiffusionWave(height.rgb);
   vec3 laplacian = vec3(0.);
@@ -363,12 +429,13 @@ void main() {
   else if (pos == 1) laplacian = DiffusionWaveT1(height.rgb);
   else if (pos == 2) laplacian = DiffusionWaveT2(height.rgb);
   else if (pos == 3) laplacian = DiffusionWaveT3(height.rgb);
+
   height.rgb = (height.rgb * vec3(2.)) + laplacian * ((dt*dt)*C)/(dx*dx);
   height.rgb = height.rgb - height_old.rgb;
   
+  // shift to 0 - 1
   height.rgb = (height.rgb + vec3(1.)) * vec3(.5);
-  height_old.rgb = (height_old.rgb + vec3(1.)) * vec3(.5);
-//  }
+  // height_old.rgb = (height_old.rgb + vec3(1.)) * vec3(.5);
   
  // height.r = 1.;
 

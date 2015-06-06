@@ -60,11 +60,14 @@ public:
 
     ofPixels screenshot;
 
+    ofMesh quad;
+
     int frame_num, time_step, pick_step;
     int w, h;
-    float scale_factor, img_size, fbo_size;
+    float scale_factor, img_size, fbo_size, mx, my;
     bool doShader;
     bool animate;
+    bool camera_lock;
 
     unsigned char 	* colorPixels;
 };

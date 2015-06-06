@@ -7,6 +7,7 @@ uniform vec4 globalColor;
 in vec2 texCoordVarying;
 out vec4 fragColor;
 
+uniform vec2 mouse;
 uniform float scale_factor;
 uniform int pos;
 
@@ -22,16 +23,21 @@ uniform int pos;
 
 void main() {
 
-  float scale = 2.;
+  // float scale = 5.68;
+  float scale = 5.68*mouse.y/1080.;
   // float slide = 1024.;
   float slide = 8192./(scale*2.);
-  vec2 offset = vec2(1024.,1600.);
-	// vec2 coord = texCoordVarying * vec2(scale);
+  // vec2 offset = vec2(1024.,1600.);
+  // vec2 offset = vec2(-1440./scale,0.);
+  vec2 offset = vec2(-1920./2.05,-395);
+  offset.x += (mouse.x-(1920./2.));
+  vec2 center = vec2((1920.*2.05)+(1.*(scale*scale)),(1080.*2.05)+(1.*(scale*scale)));
+  // vec2 coord = texCoordVarying * vec2(scale);
   vec2 coord = vec2(0.,0.);
-  if (pos == 0) coord = (texCoordVarying + offset) * vec2(scale);
-  if (pos == 1) coord = (vec2(texCoordVarying.s-slide, texCoordVarying.t) + offset) * vec2(scale);
-  if (pos == 2) coord = (vec2(texCoordVarying.s, texCoordVarying.t - slide ) + offset) * vec2(scale);
-  if (pos == 3) coord = (vec2(texCoordVarying.s - slide, texCoordVarying.t - slide) + offset) * vec2(scale);
+  if (pos == 0) coord = ((texCoordVarying + offset) * vec2(scale))+center;
+  if (pos == 1) coord = ((vec2(texCoordVarying.s-slide, texCoordVarying.t) + offset) * vec2(scale))+center;
+  if (pos == 2) coord = ((vec2(texCoordVarying.s, texCoordVarying.t - slide ) + offset) * vec2(scale))+center;
+  if (pos == 3) coord = ((vec2(texCoordVarying.s - slide, texCoordVarying.t - slide) + offset) * vec2(scale))+center;
 
   vec4 col = texture(tex0, coord);
   

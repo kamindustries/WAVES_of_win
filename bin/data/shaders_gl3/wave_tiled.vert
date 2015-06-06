@@ -10,7 +10,7 @@ uniform mat4 modelViewProjectionMatrix;
 
 void main() {
 
-  vertexUV = texcoord;
+  vertexUV = texcoord + vec2(-0.0);
   gl_Position = modelViewProjectionMatrix * position;
     
 //  vertColor = color;
