@@ -2,18 +2,36 @@
 
 //--------------------------------------------------------------
 void ofApp::DisableInterpolation(){
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, GL_NEAREST);
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_NEAREST);
-//  ofSetMinMagFilters(GL_NEAREST, GL_NEAREST);
-  ofSetMinMagFilters(GL_NEAREST, GL_NEAREST);
+//  height_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
+//  height_old_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
+//  height_backup_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
+
+  // textures
+  height0.setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height1.setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height2.setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height3.setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+
+  // Fbos
+  height_Fbo0.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_Fbo1.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_Fbo2.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_Fbo3.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_old_Fbo0.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_old_Fbo1.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_old_Fbo2.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_old_Fbo3.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_backup_Fbo0.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_backup_Fbo1.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_backup_Fbo2.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_backup_Fbo3.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+
+  display.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+
+  img_00.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  img_01.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  img_02.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  img_03.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
 
 }
 
@@ -22,7 +40,7 @@ void ofApp::setup(){
   ofBackground(34, 34, 34);
   ofSetVerticalSync(true);
   ofSetFrameRate(0);
-  ofDisableAntiAliasing();
+//  ofDisableAntiAliasing();
   ofDisableLighting();
 //  ofDisableAlphaBlending();
 //  ofEnableNormalizedTexCoords();
@@ -38,15 +56,19 @@ void ofApp::setup(){
   fbo_size = 8192.;
   w = img_size;
   h = img_size;
-  scale_factor = 4.;
+  scale_display = 5.68;
+  scale_target = scale_display;
 
 //  colorPixels = new unsigned char [w*h*3];
   doShader = true;
   frame_num = 0;
+  record_num = 0;
   time_step = 0;
   pick_step = 1;
   animate = false;
   camera_lock = false;
+  camera_home = false;
+  record = false;
 
   quad.clear();
   quad.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
@@ -61,10 +83,6 @@ void ofApp::setup(){
   img_01.loadImage("images/d7f_4k_02.png");
   img_02.loadImage("images/d7f_4k_03.png");
   img_03.loadImage("images/d7f_4k_04.png");
-  img_00.setCompression(OF_COMPRESS_NONE);
-  img_01.setCompression(OF_COMPRESS_NONE);
-  img_02.setCompression(OF_COMPRESS_NONE);
-  img_03.setCompression(OF_COMPRESS_NONE);
 //  img_00.loadImage("images/d7f_4k_01.jpg");
 //  img_01.loadImage("images/d7f_4k_02.jpg");
 //  img_02.loadImage("images/d7f_4k_03.jpg");
@@ -99,63 +117,17 @@ void ofApp::setup(){
   height_backup_Fbo2.allocate(w,h/2,GL_RGB);
   height_backup_Fbo3.allocate(w,h/2,GL_RGB);
 
-
-//  height_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_Fbo0.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_Fbo1.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_Fbo2.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_Fbo3.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-////  height_old_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_old_Fbo0.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_old_Fbo1.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_old_Fbo2.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_old_Fbo3.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-////  height_backup_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_backup_Fbo0.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_backup_Fbo1.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_backup_Fbo2.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_backup_Fbo3.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-
   ClearFramebuffers();
+  DisableInterpolation();
 
-//  height.allocate(w,h,GL_RGB);
-//  height_old.allocate(w,h,GL_RGB);
-//  height_backup.allocate(w,h,GL_RGB);
-//  display.allocate(w,h,GL_RGB);
-//
-//  height_FBO.allocate(w,h,GL_RGB);
-//  height_old_FBO.allocate(w,h,GL_RGB);
-//  height_backup_FBO.allocate(w,h,GL_RGB);
-//
-//  height_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_old_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//  height_backup_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
-//
-//  ofDisableArbTex();
-//  ofDisableNormalizedTexCoords();
-//  ofDisableTextureEdgeHack();
-//  ofDisableSmoothing();
-//
-//
-//  height_FBO.begin();
-//    ofClear(0,0,0,0);
-//  height_FBO.end();
-//
-//  height_old_FBO.begin();
-//    ofClear(0,0,0,0);
-////    img_test.loadImage("images/d7f_720_sq2.png");
-////    img_test.draw(0,0);
-//  height_old_FBO.end();
-//
-//  height_backup_FBO.begin();
-//    ofClear(0,0,0,0);
-//  height_backup_FBO.end();
+//  temp_fbo = &height_Fbo0;
+//  old_fbo = &height_Fbo0;
+
 
   /////////////////////////////////////////////////////////////////////////////
   // end framebuffers
   /////////////////////////////////////////////////////////////////////////////
 
-  DisableInterpolation();
 
 //  #ifdef TARGET_OPENGLES
 //    shader.load("shaders_gles/noise.vert","shaders_gles/noise.frag");
@@ -175,8 +147,6 @@ void ofApp::setup(){
     }
 //  #endif
 
-
-  ofSetMinMagFilters(GL_NEAREST, GL_NEAREST);
 
 }
 
@@ -236,36 +206,47 @@ void ofApp::update(){
 //
 //      height = height_FBO.getTextureReference();
 
-    DisableInterpolation();
+//    DisableInterpolation();
 
     ///////////////////////////////////////////////////////////////////////
     // TILE 0
     ///////////////////////////////////////////////////////////////////////
       height_backup_Fbo0.begin();
-        height_Fbo0.draw(0,0);
+//        height_Fbo0.draw(0,0);
+        height_Fbo0.draw(0.0,0.0);
       height_backup_Fbo0.end();
+
+//      temp_fbo = &height_Fbo0;
 
       height_Fbo0.begin();
       waveShaderTiled.begin();
         waveShaderTiled.setUniformTexture("height_old_tex", height_old_Fbo0.getTextureReference(), 1);
+//        waveShaderTiled.setUniformTexture("height_old_tex", old_fbo->getTextureReference(), 1);
         waveShaderTiled.setUniformTexture("img_01_tex", img_00.getTextureReference(), 2);
         waveShaderTiled.setUniformTexture("neighbor_x_tex", height_Fbo1.getTextureReference(), 3);
         waveShaderTiled.setUniformTexture("neighbor_y_tex", height_Fbo2.getTextureReference(), 4);
         waveShaderTiled.setUniform1i("pos", 0);
         waveShaderTiled.setUniform1i("frame_num", frame_num);
         waveShaderTiled.setUniform2f("mouse", mouseX, mouseY);
-        height0.draw(0,0);
+//        height0.draw(0,0);
+        height0.draw(0.0,0.0);
       waveShaderTiled.end();
       height_Fbo0.end();
+
+//      height_backup_Fbo0 = height_Fbo0;
+//      height_Fbo0 = height_old_Fbo0;
+//      height_old_Fbo0 = height_backup_Fbo0;
 
       height_old_Fbo0.begin();
       waveShaderMod.begin();
         waveShaderMod.setUniform1f("frame_num", float(frame_num));
-        height_backup_Fbo0.draw(0,0);
+//        height_backup_Fbo0.draw(0,0);
+        height_backup_Fbo0.draw(0.0,0.0);
       waveShaderMod.end();
       height_old_Fbo0.end();
 
       height0 = height_Fbo0.getTextureReference();
+
 
     ///////////////////////////////////////////////////////////////////////
     // TILE 1
@@ -357,6 +338,7 @@ void ofApp::update(){
 
 
       frame_num++;
+      record_num++;
 
       if (animate == true){
         time_step++;
@@ -377,44 +359,59 @@ void ofApp::draw(){
 //      height_FBO.draw(0,0);
 //    waveShader_display.end();
 //
-    if (camera_lock == false){
-      mx = float(mouseX);
-      my = float(mouseY);
+    if (camera_home == true){
+      mx = ofGetWidth()/2;
+      my = ofGetHeight()/2;
     }
-    DisableInterpolation();
+    else if (camera_lock == false){
+      mx += EaseIn(mx, float(mouseX), 0.05);
+      my += EaseIn(my, float(mouseY), 0.05);
+    }
+    scale_display += EaseIn(scale_display, scale_target, 0.05);
+//    DisableInterpolation();
 
     display.begin();
     ofBackground(34, 34, 34);
     waveShader_displayTiled.begin();
       waveShader_displayTiled.setUniform2f("mouse", mx, my);
-      waveShader_displayTiled.setUniform1f("scale_factor", scale_factor);
+      waveShader_displayTiled.setUniform1f("scale_factor", scale_display);
       waveShader_displayTiled.setUniform1i("pos", 0);
       height_Fbo0.draw(0,0);
     waveShader_displayTiled.end();
 
     waveShader_displayTiled.begin();
       waveShader_displayTiled.setUniform2f("mouse", mx, my);
-      waveShader_displayTiled.setUniform1f("scale_factor", scale_factor);
+      waveShader_displayTiled.setUniform1f("scale_factor", scale_display);
       waveShader_displayTiled.setUniform1i("pos", 1);
       height_Fbo1.draw(0,0);
     waveShader_displayTiled.end();
 
     waveShader_displayTiled.begin();
       waveShader_displayTiled.setUniform2f("mouse", mx, my);
-      waveShader_displayTiled.setUniform1f("scale_factor", scale_factor);
+      waveShader_displayTiled.setUniform1f("scale_factor", scale_display);
       waveShader_displayTiled.setUniform1i("pos", 2);
       height_Fbo2.draw(0,0);
     waveShader_displayTiled.end();
 
     waveShader_displayTiled.begin();
       waveShader_displayTiled.setUniform2f("mouse", mx, my);
-      waveShader_displayTiled.setUniform1f("scale_factor", scale_factor);
+      waveShader_displayTiled.setUniform1f("scale_factor", scale_display);
       waveShader_displayTiled.setUniform1i("pos", 3);
       height_Fbo3.draw(0,0);
     waveShader_displayTiled.end();
     display.end();
 
     display.draw(0,0);
+
+    if (record == true){
+      string folder = "captures/";
+      folder += "movie/01/";
+      string timestamp = ofToString(record_num);
+      string filename = folder + "m01_" + timestamp + ".jpg";
+
+      display.readToPixels(screenshot);
+      ofSaveImage(screenshot, filename);
+    }
 
 
 //    cout<<"frame "<<frame_num<<endl;
@@ -423,7 +420,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key){
     if (key == '?'){
-      ofGetUsingArbTex();
+      cout << height_Fbo0.getTextureReference().texData.textureTarget << " " << GL_TEXTURE_2D << " " <<  GL_TEXTURE_RECTANGLE_ARB << endl;
     }
     if (key == '.'){
       string folder = "02/";
@@ -454,6 +451,13 @@ void ofApp::keyPressed  (int key){
       display.readToPixels(screenshot);
       ofSaveImage(screenshot, filename);
     }
+    if (key == '-'){
+      scale_target += 1.;
+    }
+    if (key == '='){
+      scale_target -= 1.;
+      if (scale_target <= .4) scale_target = 0.4;
+    }
     if (key == ' '){
       pick_step++;
     }
@@ -467,9 +471,9 @@ void ofApp::keyPressed  (int key){
         animate = true;
       }
     }
-    if (key == 'l'){
-      if(camera_lock==true)camera_lock=false;
-      else camera_lock = true;
+    if (key == 'g'){
+      if (camera_home == false) camera_home=true;
+      else camera_home = false;
     }
     if( key == 's' ){
         doShader = !doShader;
@@ -477,6 +481,14 @@ void ofApp::keyPressed  (int key){
     if (key == 'r'){
       frame_num = 0;
       ClearFramebuffers();
+    }
+    if (key == 'm'){
+      if (record == false) record = true;
+      else record = false;
+    }
+
+    if (key == '0'){
+      scale_target = 5.68;
     }
 }
 
@@ -497,7 +509,14 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-
+  if(camera_lock==true){
+    cout<<"Stopping recording movie."<<endl;
+    camera_lock=false;
+  }
+  else {
+    cout<<"Starting movie!"<<endl;
+    camera_lock = true;
+  }
 }
 
 //--------------------------------------------------------------
@@ -518,6 +537,14 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){
 
+}
+
+//--------------------------------------------------------------
+float ofApp::EaseIn(float _value, float _target, float _speed){
+  float x = _value;
+  float d = _target - _value;
+  x = d * _speed;
+  return x;
 }
 
 //--------------------------------------------------------------

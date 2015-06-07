@@ -22,12 +22,17 @@ public:
 
     void DisableInterpolation();
     void ClearFramebuffers();
+    float EaseIn(float _value, float _target, float _speed);
 //    void UpdateShaderUniforms();
 
     ofTrueTypeFont font;
     ofShader shader;
     ofShader waveShader, waveShaderTiled, waveShaderMod;
     ofShader waveShader_display, waveShader_displayTiled;
+
+    ofFbo* temp_fbo;
+    ofFbo* old_fbo;
+
 
     ofFbo height_FBO,
           height_Fbo0,
@@ -62,12 +67,13 @@ public:
 
     ofMesh quad;
 
-    int frame_num, time_step, pick_step;
+    int frame_num, time_step, pick_step, record_num;
     int w, h;
-    float scale_factor, img_size, fbo_size, mx, my;
+    float scale_display, scale_target, img_size, fbo_size, mx, my;
     bool doShader;
     bool animate;
-    bool camera_lock;
+    bool camera_lock, camera_home;
+    bool record;
 
     unsigned char 	* colorPixels;
 };

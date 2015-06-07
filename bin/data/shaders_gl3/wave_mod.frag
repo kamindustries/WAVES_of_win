@@ -29,8 +29,8 @@ void main() {
   // -1 - 1
   col.rgb = (col.rgb - vec3(0.5)) * vec3(2.);
   
-  // float mess_it_up = 1. + abs((sin(frame_num * .005)+0.001)*0.004);
-  // col.rgb = col.rgb * vec3(mess_it_up);
+  float mess_it_up = 1. + abs((sin(frame_num * .005)+0.001)*0.004);
+  col.rgb = col.rgb * vec3(mess_it_up);
 
   // 0 - 1
   col.rgb = (col.rgb + vec3(1.)) * vec3(.5);

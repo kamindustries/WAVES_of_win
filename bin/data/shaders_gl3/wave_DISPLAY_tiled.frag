@@ -24,14 +24,18 @@ uniform int pos;
 void main() {
 
   // float scale = 5.68;
-  float scale = 5.68*mouse.y/1080.;
+  float scale = scale_factor;
+  // float scale = 5.68*mouse.y/1080.;
   // float slide = 1024.;
   float slide = 8192./(scale*2.);
   // vec2 offset = vec2(1024.,1600.);
   // vec2 offset = vec2(-1440./scale,0.);
-  vec2 offset = vec2(-1920./2.05,-395);
-  offset.x += (mouse.x-(1920./2.));
-  vec2 center = vec2((1920.*2.05)+(1.*(scale*scale)),(1080.*2.05)+(1.*(scale*scale)));
+  vec2 offset = vec2(-1920./2.,-395);
+  float follow_scale = 3.3/scale;
+  // if (scale < 1.) follow_scale = pow((1./scale),3.3/scale);
+  offset.x += (mouse.x-(1920./2.)) * follow_scale;
+  offset.y += (mouse.y-(1080./2.)) * (follow_scale*2.);
+  vec2 center = vec2((1920.*2.05)+(4.*(scale)),(1080.*2.05)+(1.*(scale*scale)));
   // vec2 coord = texCoordVarying * vec2(scale);
   vec2 coord = vec2(0.,0.);
   if (pos == 0) coord = ((texCoordVarying + offset) * vec2(scale))+center;
@@ -45,6 +49,13 @@ void main() {
       coord.t < 0. || coord.t > 4096.){
       col.r = 1.;
       col.a = 0.;
+  }
+
+  // red helper lines
+  float red_border = 2.;
+  if (coord.s < red_border || coord.s > 4096.-red_border ||
+      coord.t < red_border || coord.t > 4096.-red_border){
+      col.r = 1.;
   }
 
 
