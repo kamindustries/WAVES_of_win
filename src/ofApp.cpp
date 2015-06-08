@@ -16,8 +16,8 @@ void ofApp::DisableInterpolation(){
   height_Fbo0.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
   height_Fbo1.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
   height_Fbo2.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
-  height_Fbo3.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
   height_old_Fbo0.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
+  height_Fbo3.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
   height_old_Fbo1.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
   height_old_Fbo2.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
   height_old_Fbo3.getTextureReference().setTextureMinMagFilter( GL_NEAREST, GL_NEAREST );
@@ -56,7 +56,7 @@ void ofApp::setup(){
   fbo_size = 8192.;
   w = img_size;
   h = img_size;
-  scale_display = 5.68;
+  scale_display = 5.7;
   scale_target = scale_display;
 
 //  colorPixels = new unsigned char [w*h*3];
@@ -69,6 +69,9 @@ void ofApp::setup(){
   camera_lock = false;
   camera_home = false;
   record = false;
+  showFPS = false;
+
+  font.loadFont("type/verdana.ttf", 10);
 
   quad.clear();
   quad.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
@@ -403,16 +406,28 @@ void ofApp::draw(){
 
     display.draw(0,0);
 
+    // record movie as individual HD frames
     if (record == true){
-      string folder = "captures/";
-      folder += "movie/01/";
-      string timestamp = ofToString(record_num);
-      string filename = folder + "m01_" + timestamp + ".jpg";
+      if (frame_num % 1 == 0) {
+        string folder = "captures/";
+        folder += "movie/02/";
+        string timestamp = ofToString(record_num);
+        string filename = folder + "m01_" + timestamp + ".jpg";
 
-      display.readToPixels(screenshot);
-      ofSaveImage(screenshot, filename);
+        display.readToPixels(screenshot);
+        ofSaveImage(screenshot, filename);
+      }
     }
 
+    // show framerate at top left
+    if (showFPS){
+      ofSetColor(0);
+      ofRect(10, 5, 60, 15);
+      ofSetColor(255);
+      string framerate = ofToString(ofGetFrameRate());
+      font.drawString(framerate, 10, 18);
+
+    }
 
 //    cout<<"frame "<<frame_num<<endl;
 }
@@ -472,8 +487,15 @@ void ofApp::keyPressed  (int key){
       }
     }
     if (key == 'g'){
-      if (camera_home == false) camera_home=true;
+      if (camera_home == false) {
+          scale_target = 5.7;
+          camera_home=true;
+      }
       else camera_home = false;
+    }
+    if (key == 'f'){
+      if (showFPS==false) showFPS=true;
+      else showFPS = false;
     }
     if( key == 's' ){
         doShader = !doShader;
@@ -483,12 +505,21 @@ void ofApp::keyPressed  (int key){
       ClearFramebuffers();
     }
     if (key == 'm'){
-      if (record == false) record = true;
-      else record = false;
+      if (record == false) {
+        cout<<"Stopping recording movie."<<endl;
+        record = true;
+      }
+      else {
+        cout<<"Starting movie!"<<endl;
+        record = false;
+      }
     }
 
     if (key == '0'){
-      scale_target = 5.68;
+      scale_target = 5.7;
+    }
+    if (key == '1'){
+      scale_target = 1.0;
     }
 }
 
@@ -510,11 +541,9 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
   if(camera_lock==true){
-    cout<<"Stopping recording movie."<<endl;
     camera_lock=false;
   }
   else {
-    cout<<"Starting movie!"<<endl;
     camera_lock = true;
   }
 }

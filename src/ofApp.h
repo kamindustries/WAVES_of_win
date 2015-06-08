@@ -74,6 +74,7 @@ public:
     bool animate;
     bool camera_lock, camera_home;
     bool record;
+    bool showFPS;
 
     unsigned char 	* colorPixels;
 };

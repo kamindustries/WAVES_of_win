@@ -25,12 +25,14 @@ void main() {
 
   // float scale = 5.68;
   float scale = scale_factor;
+  // float scale = 5.7;
+  // float scale = 1.;
   // float scale = 5.68*mouse.y/1080.;
   // float slide = 1024.;
   float slide = 8192./(scale*2.);
   // vec2 offset = vec2(1024.,1600.);
   // vec2 offset = vec2(-1440./scale,0.);
-  vec2 offset = vec2(-1920./2.,-395);
+  vec2 offset = vec2(-1920./2.,-396);
   float follow_scale = 3.3/scale;
   // if (scale < 1.) follow_scale = pow((1./scale),3.3/scale);
   offset.x += (mouse.x-(1920./2.)) * follow_scale;
@@ -52,11 +54,19 @@ void main() {
   }
 
   // red helper lines
-  float red_border = 2.;
-  if (coord.s < red_border || coord.s > 4096.-red_border ||
-      coord.t < red_border || coord.t > 4096.-red_border){
-      col.r = 1.;
-  }
+  // float red_border = 10.;
+  // if (pos <= 1){
+  //   if (coord.s < red_border || coord.s > 4096.-red_border ||
+  //       coord.t < red_border || coord.t > 4096.-red_border){
+  //       col.rgb = vec3(1.);
+  //   }
+  // }
+  // else {
+  //   if (coord.s < red_border || coord.s > 4096.-red_border ||
+  //       coord.t < red_border || coord.t > 2048.-red_border){
+  //       col.rgb = vec3(1.);
+  //   }
+  // }
 
 
   fragColor = col;
