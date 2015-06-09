@@ -19,10 +19,10 @@ uniform int pos;
 uniform vec2 mouse;
 
 const float img_size = 4096.;
-const float xLength = 20.8266666;
+const float xLength = 16.8266666;
 const float dt = 0.001;
 const float C = 1.;
-const float spread = 1.;
+const float spread = .9;
 const float simulate = 1.;
 const vec2 center_pixel = vec2(0., 0.);
 
@@ -177,40 +177,13 @@ vec3 bch2RGB(vec3 _bch){
   vec3 rgb = def2RGB(def);
   return rgb;
 }
-// vec3 bch2RGB_altAxis(vec3 _bch){
-//   vec3 def;
-//   def.x = _bch.x * cos(_bch.y);
-//   def.y = _bch.x * sin(_bch.y) * cos(_bch.z);
-//   def.z = _bch.x * sin(_bch.y) * sin(_bch.z+(ttime*3.14159));
-//   vec3 rgb = def2RGB(def);
-//   return rgb;
-// }
-
-// B R I G H T N E S S
-vec3 Brightness(vec3 _col, float _f){
-  vec3 BCH = rgb2BCH(_col);
-  vec3 b3 = vec3(BCH.x,BCH.x,BCH.x);
-  float x = pow((_f + 1.)/2.,2.);
-  x = _f;
-  _col = _col + (b3 * x)/3.;
-  return _col;
-}
-
-// C O N T R A S T  
-vec3 Contrast(vec3 _col, float _f){
-  vec3 def = rgb2DEF(_col);
-  float B = getB(def);
-  float C = getC(def);
-  float H = getH(def);
-  
-  B = B * pow(B*(1.-C), _f);
-
-  def.x = B * cos(C);
-  def.y = B * sin(C) * cos(H);
-  def.z = B * sin(C) * sin(H);
-
-  _col.rgb = def2RGB(def);
-  return _col;
+vec3 bch2RGB_altAxis(vec3 _bch){
+  vec3 def;
+  def.x = _bch.x * cos(_bch.y);
+  def.y = _bch.x * sin(_bch.y) * cos(_bch.z);
+  // def.z = _bch.x * sin(_bch.y) * sin(_bch.z+(ttime*3.14159));
+  vec3 rgb = def2RGB(def);
+  return rgb;
 }
 
 ///////////////////////////////////////////////////////////////////////a
@@ -430,9 +403,6 @@ void main() {
   // dy = yLength/img_size;
   float box_size = 1000.;
 
-  vec4 height = vec4(1.);
-  vec4 height_old = vec4(1.);
-  vec4 img_01 = vec4(1.);
 
 
   vec2 coord = vec2((vertexUV.s), (vertexUV.t)) + center_pixel;
@@ -441,25 +411,73 @@ void main() {
   //   coord.y += 0.05;
   // }
 
+  vec4 height = texture(tex0, coord);
+  vec4 height_old = texture(height_old_tex, coord);
+  vec4 img_01 = texture(img_01_tex, coord);
 
-  // vec2 coord = gl_FragCoord.st + vec2(0.);
-  // if (coord.x == coord.y){
-    // float random = rand(coord) * .1;
-    // coord.x += random;
+
+
+  ///////////////////////////////////////////////////////////////////////
+  // Border Conditions
+  ///////////////////////////////////////////////////////////////////////
+
+  float border_threshold = 1.;
+  // original
+  // if (gl_FragCoord.x < border_threshold || gl_FragCoord.x > img_size-border_threshold ||
+  //     gl_FragCoord.y < border_threshold || gl_FragCoord.y > img_size-border_threshold) {
+  //   height.rgb = vec3(-1.);
+  //   height_old.rgb = vec3(-1.);
   // }
+  if (pos == 0) {
+    if (gl_FragCoord.x < border_threshold || gl_FragCoord.y < border_threshold) {
+      height.rgb = vec3(0.);
+      height_old.rgb = vec3(0.);
+    }
+  }
+  else if (pos == 1) {
+    if (gl_FragCoord.x > img_size-border_threshold || gl_FragCoord.y < border_threshold) {
+      height.rgb = vec3(0.);
+      height_old.rgb = vec3(0.);
+    }
+  }
+  else if (pos == 2) {
+    if (gl_FragCoord.x < border_threshold || gl_FragCoord.y > (img_size/2.)-border_threshold) {
+      height.rgb = vec3(0.);
+      height_old.rgb = vec3(0.);
+    }
+  }  
+  else if (pos == 3) {
+    if (gl_FragCoord.x > img_size-border_threshold || gl_FragCoord.y > (img_size/2.)-border_threshold) {
+      height.rgb = vec3(0.);
+      height_old.rgb = vec3(0.);
+    }
+  }
 
-  height = texture(tex0, coord);
-  height_old = texture(height_old_tex, coord);
-  img_01 = texture(img_01_tex, coord);
+
+
+  ///////////////////////////////////////////////////////////////////////
+  // add chemcial/signal source
+  ///////////////////////////////////////////////////////////////////////
 
   vec3 Cd_img = img_01.rgb;
-  float b = (Cd_img.r+Cd_img.g+Cd_img.b)/3.;
+  // Cd_img = rgb2BCH(Cd_img);
+    float b = rgb2BCH(Cd_img).r;
+    b = sqrt(b);
+    // Cd_img.g *= Cd_img.r;
+    // Cd_img.b += (frame_num*0.005);
+  // Cd_img = bch2RGB(Cd_img);
 
-  Cd_img = rgb2BCH(Cd_img);
   if (frame_num % 200 == 0){
-    if (Cd_img.r > 0.5) {
-      height_old.rgb = img_01.rgb * vec3(0.1);
-      height.rgb = img_01.rgb * vec3(0.1);
+  // if (frame_num % 600 == 0){
+    // if (b > 0.02) {
+    if (b > 0.9) {
+      // height_old.rgb = img_01.rgb * vec3(0.1);
+      // height_old.rgb = Cd_img.rgb * vec3(b*.001);
+      // height.rgb = Cd_img.rgb * vec3(b*.001);
+      height.rgb += Cd_img.rgb * vec3(b*.01);
+      if (height.r > 1.) height.r = 1.;
+      if (height.g > 1.) height.g = 1.;
+      if (height.b > 1.) height.b = 1.;
     }
   }
 
@@ -471,10 +489,16 @@ void main() {
   //   }
   // }
 
+  // make a grid or lines
   // if (frame_num % 100 == 0){
-  //   if (mod(vertexUV.x, 100) < 10.){
+  //   if (mod(vertexUV.x, 200) < 10.){
+  //   // if ( (mod(vertexUV.x, 300) > 10. && mod(vertexUV.x, 300) < 20. &&
+  //   //       mod(vertexUV.y, 300) > 10. && mod(vertexUV.y, 300) < 20.) ){
+  //         // mod(vertexUV.y, 300) < 10. ) ){ 
+  //         // ( vertexUV.x > 10. && vertexUV.x < img_size-10. &&
+  //         //   vertexUV.y > 10. && vertexUV.y < img_size-10. ) ) {
   //     height.rgb += vec3(1.);
-  //     height_old.rgb += 1.;
+  //     height_old.rgb += vec3(1.);
   //   }
   // }
 
@@ -499,42 +523,6 @@ void main() {
   // W A V E
   ///////////////////////////////////////////////////////////////////////
 
-  float border_threshold = 0.1;
-  // original
-  // if (gl_FragCoord.x < border_threshold || gl_FragCoord.x > img_size-border_threshold ||
-  //     gl_FragCoord.y < border_threshold || gl_FragCoord.y > img_size-border_threshold) {
-  //   height.rgb = vec3(-1.);
-  //   height_old.rgb = vec3(-1.);
-  // }
-  if (pos == 0) {
-    if (gl_FragCoord.x < border_threshold || gl_FragCoord.y < border_threshold) {
-      height.rgb = vec3(.5);
-      height_old.rgb = vec3(.5);
-    }
-  }
-  else if (pos == 1) {
-    if (gl_FragCoord.x > img_size-border_threshold || gl_FragCoord.y < border_threshold) {
-      height.rgb = vec3(.5);
-      height_old.rgb = vec3(.5);
-    }
-  }
-  else if (pos == 2) {
-    if (gl_FragCoord.x < border_threshold || gl_FragCoord.y > (img_size/2.)-border_threshold) {
-      height.rgb = vec3(.5);
-      height_old.rgb = vec3(.5);
-    }
-  }  
-  else if (pos == 3) {
-    if (gl_FragCoord.x > img_size-border_threshold || gl_FragCoord.y > (img_size/2.)-border_threshold) {
-      height.rgb = vec3(.5);
-      height_old.rgb = vec3(.5);
-    }
-  }
-
-
-  // shift to -1 - 1
-  height.rgb = (height.rgb - vec3(0.5)) * vec3(2.);
-  height_old.rgb = (height_old.rgb - vec3(0.5)) * vec3(2.);
 
   // vec3 laplacian = DiffusionWave(coord);
   vec3 laplacian = vec3(0.);
@@ -542,6 +530,12 @@ void main() {
   else if (pos == 1) laplacian = DiffusionWaveT1(coord);
   else if (pos == 2) laplacian = DiffusionWaveT2(coord);
   else if (pos == 3) laplacian = DiffusionWaveT3(coord);
+
+
+  // shift to -1 - 1
+  height.rgb = (height.rgb - vec3(0.5)) * vec3(2.);
+  height_old.rgb = (height_old.rgb - vec3(0.5)) * vec3(2.);
+  // img_01.rgb = (img_01.rgb - vec3(0.5)) * vec3(2.);
 
   // try to manually correct the lower left triangle
   // vec2 coord_norm = coord / vec2(img_size*1.);

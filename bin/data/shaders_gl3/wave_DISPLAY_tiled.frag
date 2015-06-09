@@ -46,27 +46,39 @@ void main() {
   if (pos == 3) coord = ((vec2(texCoordVarying.s - slide, texCoordVarying.t - slide) + offset) * vec2(scale))+center;
 
   vec4 col = texture(tex0, coord);
-  
-  if (coord.s < 0. || coord.s > 4096. ||
-      coord.t < 0. || coord.t > 4096.){
-      col.r = 1.;
-      col.a = 0.;
-  }
 
   // red helper lines
-  // float red_border = 10.;
+  // float red_border = 1.;
   // if (pos <= 1){
   //   if (coord.s < red_border || coord.s > 4096.-red_border ||
   //       coord.t < red_border || coord.t > 4096.-red_border){
-  //       col.rgb = vec3(1.);
+  //       // col.rgb = vec3(1.);
+  //       col.r = 1.;
   //   }
   // }
   // else {
   //   if (coord.s < red_border || coord.s > 4096.-red_border ||
   //       coord.t < red_border || coord.t > 2048.-red_border){
-  //       col.rgb = vec3(1.);
+  //       // col.rgb = vec3(1.);
+  //       col.r = 1.;
   //   }
   // }
+
+
+  // secure outside borders
+if (pos < 2) {
+  if (coord.s < 0. || coord.s > 4096. ||
+      coord.t < 0. || coord.t > 4096.){
+      col.r = 0.;
+      col.a = 0.;
+  }
+} else{ 
+    if (coord.s < 0. || coord.s > 4096. ||
+      coord.t < 0. || coord.t > 2048.){
+      col.r = 0.;
+      col.a = 0.;
+    }
+  }
 
 
   fragColor = col;

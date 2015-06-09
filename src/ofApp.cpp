@@ -82,14 +82,22 @@ void ofApp::setup(){
 
 //  img_01.loadImage("images/ammann_1024.png");
 //  img_01.loadImage("images/d7f_4k.png");
-  img_00.loadImage("images/d7f_4k_01.png");
-  img_01.loadImage("images/d7f_4k_02.png");
-  img_02.loadImage("images/d7f_4k_03.png");
-  img_03.loadImage("images/d7f_4k_04.png");
-//  img_00.loadImage("images/d7f_4k_01.jpg");
-//  img_01.loadImage("images/d7f_4k_02.jpg");
-//  img_02.loadImage("images/d7f_4k_03.jpg");
-//  img_03.loadImage("images/d7f_4k_04.jpg");
+//  img_00.loadImage("images/d7f_4k_01.png");
+//  img_01.loadImage("images/d7f_4k_02.png");
+//  img_02.loadImage("images/d7f_4k_03.png");
+//  img_03.loadImage("images/d7f_4k_04.png");
+//  img_00.loadImage("images/cyclo_01.jpg");
+//  img_01.loadImage("images/cyclo_02.jpg");
+//  img_02.loadImage("images/cyclo_03.jpg");
+//  img_03.loadImage("images/cyclo_04.jpg");
+//  img_00.loadImage("images/w7f_01.jpg");
+//  img_01.loadImage("images/w7f_02.jpg");
+//  img_02.loadImage("images/w7f_03.jpg");
+//  img_03.loadImage("images/w7f_04.jpg");
+  img_00.loadImage("images/micro_01.jpg");
+  img_01.loadImage("images/micro_02.jpg");
+  img_02.loadImage("images/micro_03.jpg");
+  img_03.loadImage("images/micro_04.jpg");
 
   /////////////////////////////////////////////////////////////////////////////
   // Framebuffers, allocation, etc
@@ -339,6 +347,20 @@ void ofApp::update(){
 
       height3 = height_Fbo3.getTextureReference();
 
+      // record movie as individual HD frames
+      if (record == true){
+        if (frame_num % 1 == 0) {
+          string movie_number = "10b";
+          string folder = "captures/";
+          folder += "movie/m" + movie_number + "/";
+          string movie_fn= ofToString(frame_num);
+          string filename = folder + "m" + movie_number + "_" + movie_fn+ ".jpg";
+
+          display.readToPixels(screenshot);
+          ofSaveImage(screenshot, filename);
+          cout<<"Saved "<<filename<<endl;
+        }
+      }
 
       frame_num++;
       record_num++;
@@ -369,8 +391,11 @@ void ofApp::draw(){
     else if (camera_lock == false){
       mx += EaseIn(mx, float(mouseX), 0.05);
       my += EaseIn(my, float(mouseY), 0.05);
+      if (abs(mouseX - mx) < 1) mx = mouseX;
+      if (abs(mouseY - my) < 1) my = mouseY;
     }
     scale_display += EaseIn(scale_display, scale_target, 0.05);
+
 //    DisableInterpolation();
 
     display.begin();
@@ -405,19 +430,6 @@ void ofApp::draw(){
     display.end();
 
     display.draw(0,0);
-
-    // record movie as individual HD frames
-    if (record == true){
-      if (frame_num % 1 == 0) {
-        string folder = "captures/";
-        folder += "movie/02/";
-        string timestamp = ofToString(record_num);
-        string filename = folder + "m01_" + timestamp + ".jpg";
-
-        display.readToPixels(screenshot);
-        ofSaveImage(screenshot, filename);
-      }
-    }
 
     // show framerate at top left
     if (showFPS){
@@ -506,11 +518,11 @@ void ofApp::keyPressed  (int key){
     }
     if (key == 'm'){
       if (record == false) {
-        cout<<"Stopping recording movie."<<endl;
+        cout<<"Starting movie!"<<endl;
         record = true;
       }
       else {
-        cout<<"Starting movie!"<<endl;
+        cout<<"Stopping recording movie."<<endl;
         record = false;
       }
     }
@@ -541,9 +553,11 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
   if(camera_lock==true){
+    cout<<"CAMERA UNLOCKED"<<endl;
     camera_lock=false;
   }
   else {
+    cout<<"CAMERA LOCKED"<<endl;
     camera_lock = true;
   }
 }
