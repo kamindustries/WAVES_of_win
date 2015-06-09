@@ -22,7 +22,7 @@ const float img_size = 4096.;
 const float xLength = 16.8266666;
 const float dt = 0.001;
 const float C = 1.;
-const float spread = .9;
+const float spread = 1.;
 const float simulate = 1.;
 const vec2 center_pixel = vec2(0., 0.);
 
@@ -469,8 +469,8 @@ void main() {
 
   if (frame_num % 200 == 0){
   // if (frame_num % 600 == 0){
-    // if (b > 0.02) {
-    if (b > 0.9) {
+    if (b > 0.02) {
+    // if (b > 0.9) {
       // height_old.rgb = img_01.rgb * vec3(0.1);
       // height_old.rgb = Cd_img.rgb * vec3(b*.001);
       // height.rgb = Cd_img.rgb * vec3(b*.001);

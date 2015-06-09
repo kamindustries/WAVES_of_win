@@ -23,6 +23,7 @@ public:
     void DisableInterpolation();
     void ClearFramebuffers();
     float EaseIn(float _value, float _target, float _speed);
+//    void UpdateShaderUniforms();
 
     ofTrueTypeFont font;
     ofShader shader;
