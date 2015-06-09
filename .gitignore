@@ -52,3 +52,4 @@ bin/data/captures/*
 */backup*/*
 src/ofApp.cpp.save-failed
 *.zip
+_DELIVERABLE/*

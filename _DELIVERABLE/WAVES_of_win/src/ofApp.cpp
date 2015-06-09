@@ -1,5 +1,18 @@
 #include "ofApp.h"
 
+// High Resolution Wave Equation
+// Kurt Kaminski
+// 9 June 2015
+//
+// a: start/stop animation
+// +/-: zoom
+// g: center camera and lock
+// mouse click: lock current camera position
+// .: save all 4 tiles
+// /: save current HD frame
+// m: start recording all frames
+
+
 //--------------------------------------------------------------
 void ofApp::DisableInterpolation(){
 //  height_FBO.getTextureReference().setTextureMinMagFilter(GL_NEAREST,GL_NEAREST);
@@ -80,24 +93,14 @@ void ofApp::setup(){
   quad.addVertex(ofVec3f(0, h, 0));
   quad.addVertex(ofVec3f(w, h, 0));
 
-//  img_01.loadImage("images/ammann_1024.png");
-//  img_01.loadImage("images/d7f_4k.png");
-//  img_00.loadImage("images/d7f_4k_01.png");
-//  img_01.loadImage("images/d7f_4k_02.png");
-//  img_02.loadImage("images/d7f_4k_03.png");
-//  img_03.loadImage("images/d7f_4k_04.png");
-//  img_00.loadImage("images/cyclo_01.jpg");
-//  img_01.loadImage("images/cyclo_02.jpg");
-//  img_02.loadImage("images/cyclo_03.jpg");
-//  img_03.loadImage("images/cyclo_04.jpg");
-//  img_00.loadImage("images/w7f_01.jpg");
-//  img_01.loadImage("images/w7f_02.jpg");
-//  img_02.loadImage("images/w7f_03.jpg");
-//  img_03.loadImage("images/w7f_04.jpg");
-  img_00.loadImage("images/micro_01.jpg");
-  img_01.loadImage("images/micro_02.jpg");
-  img_02.loadImage("images/micro_03.jpg");
-  img_03.loadImage("images/micro_04.jpg");
+  img_00.loadImage("images/d7f_4k_01.png");
+  img_01.loadImage("images/d7f_4k_02.png");
+  img_02.loadImage("images/d7f_4k_03.png");
+  img_03.loadImage("images/d7f_4k_04.png");
+//  img_00.loadImage("images/micro_01.jpg");
+//  img_01.loadImage("images/micro_02.jpg");
+//  img_02.loadImage("images/micro_03.jpg");
+//  img_03.loadImage("images/micro_04.jpg");
 
   /////////////////////////////////////////////////////////////////////////////
   // Framebuffers, allocation, etc
@@ -131,9 +134,6 @@ void ofApp::setup(){
   ClearFramebuffers();
   DisableInterpolation();
 
-//  temp_fbo = &height_Fbo0;
-//  old_fbo = &height_Fbo0;
-
 
   /////////////////////////////////////////////////////////////////////////////
   // end framebuffers
@@ -162,19 +162,6 @@ void ofApp::setup(){
 }
 
 
-
-//--------------------------------------------------------------
-//void ofApp::UpdateShaderUniforms(){
-////        waveShader.begin();
-////        waveShader.setUniformTexture("height_old_tex", height_old_FBO.getTextureReference(), 1);
-////        waveShader.setUniformTexture("img_01_tex", img_01.getTextureReference(), 2);
-//        waveShaderTiled.setUniform1f("img_size", img_size);
-//        waveShaderTiled.setUniform1i("frame_num", frame_num);
-//        waveShaderTiled.setUniform2f("mouse", mouseX, mouseY);
-////        waveShader.end();
-//}
-
-
 //--------------------------------------------------------------
 void ofApp::update(){
 
@@ -192,10 +179,6 @@ void ofApp::update(){
                              "shaders_gl3/wave_mod.frag");
       }
 
-      // needs tiling!!!!
-      // need to output full res tiles
-      // implement oscillator on previous timestep
-      // fix diagonal line
 //      height_backup_FBO.begin();
 //        height_FBO.draw(0,0);
 //      height_backup_FBO.end();
@@ -227,8 +210,6 @@ void ofApp::update(){
         height_Fbo0.draw(0.0,0.0);
       height_backup_Fbo0.end();
 
-//      temp_fbo = &height_Fbo0;
-
       height_Fbo0.begin();
       waveShaderTiled.begin();
         waveShaderTiled.setUniformTexture("height_old_tex", height_old_Fbo0.getTextureReference(), 1);
@@ -239,19 +220,13 @@ void ofApp::update(){
         waveShaderTiled.setUniform1i("pos", 0);
         waveShaderTiled.setUniform1i("frame_num", frame_num);
         waveShaderTiled.setUniform2f("mouse", mouseX, mouseY);
-//        height0.draw(0,0);
         height0.draw(0.0,0.0);
       waveShaderTiled.end();
       height_Fbo0.end();
 
-//      height_backup_Fbo0 = height_Fbo0;
-//      height_Fbo0 = height_old_Fbo0;
-//      height_old_Fbo0 = height_backup_Fbo0;
-
       height_old_Fbo0.begin();
       waveShaderMod.begin();
         waveShaderMod.setUniform1f("frame_num", float(frame_num));
-//        height_backup_Fbo0.draw(0,0);
         height_backup_Fbo0.draw(0.0,0.0);
       waveShaderMod.end();
       height_old_Fbo0.end();
@@ -317,10 +292,10 @@ void ofApp::update(){
       height_old_Fbo2.end();
 
       height2 = height_Fbo2.getTextureReference();
-////
-////    ///////////////////////////////////////////////////////////////////////
-////    // TILE 3
-////    ///////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////
+    // TILE 3
+    ///////////////////////////////////////////////////////////////////////
       height_backup_Fbo3.begin();
         height_Fbo3.draw(0,0);
       height_backup_Fbo3.end();
@@ -362,6 +337,9 @@ void ofApp::update(){
         }
       }
 
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+
       frame_num++;
       record_num++;
 
@@ -375,15 +353,10 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-//  ofGetElapsedTimef()
 //    ofSetColor(245, 58, 135);
 //    ofFill();
 
-//    waveShader_display.begin();
-//      waveShader_display.setUniform1f("scale_factor", scale_factor);
-//      height_FBO.draw(0,0);
-//    waveShader_display.end();
-//
+
     if (camera_home == true){
       mx = ofGetWidth()/2;
       my = ofGetHeight()/2;
@@ -395,8 +368,6 @@ void ofApp::draw(){
       if (abs(mouseY - my) < 1) my = mouseY;
     }
     scale_display += EaseIn(scale_display, scale_target, 0.05);
-
-//    DisableInterpolation();
 
     display.begin();
     ofBackground(34, 34, 34);
@@ -429,6 +400,7 @@ void ofApp::draw(){
     waveShader_displayTiled.end();
     display.end();
 
+    // finally display the image
     display.draw(0,0);
 
     // show framerate at top left
